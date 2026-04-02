@@ -1,0 +1,15 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /backup/
+Disallow: /explorer/
+Disallow: /login/
+Disallow: /register/
+Disallow: /home
+Disallow: /error
+Disallow: /success
+
+# Allow public pages
+Allow: /absensi
+
+# Sitemap (kalau ada)
+Sitemap: https://yourdomain.com/sitemap.xml
