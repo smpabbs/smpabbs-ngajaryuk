@@ -1,1 +1,5 @@
-*.sqlite*
+# Allow the SQLite database to be tracked in git for GitHub-stored DB
+# Only ignore the default Laravel SQLite patterns
+*.sqlite-journal
+-wal
+-shm

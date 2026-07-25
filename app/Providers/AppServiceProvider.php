@@ -23,7 +23,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
+        // ── Ensure database exists (pull from GitHub if on serverless) ──
         if (app()->environment('production')) {
+            try {
+                $this->app->make(\App\Services\GitHubDatabaseService::class)->ensureDatabase();
+            } catch (\Throwable $e) {
+                Log::warning('GitHubDatabaseService: boot pull skipped', ['error' => $e->getMessage()]);
+            }
+
             DB::listen(function ($query) {
                 if ($query->time > 500) { // ms
                     Log::warning('Slow Query', [
@@ -33,6 +40,15 @@ class AppServiceProvider extends ServiceProvider
                     ]);
                 }
             });
+        }
+
+        // ── On local/staging, also try to sync but don't fail ──
+        if (app()->environment('local')) {
+            try {
+                $this->app->make(\App\Services\GitHubDatabaseService::class)->ensureDatabase();
+            } catch (\Throwable $e) {
+                // Silently skip on local
+            }
         }
     }
 
