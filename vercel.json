@@ -23,6 +23,6 @@
       ]
     }
   ],
-  "installCommand": "composer install --no-dev --optimize-autoloader --no-interaction && npm ci --production",
+  "installCommand": "npm ci --production || npm install --production",
   "buildCommand": "npm run build"
 }
