@@ -43,8 +43,10 @@ if ($isVercel) {
     if (!is_dir($storagePath)) {
         mkdir($storagePath, 0775, true);
     }
+    echo "STORAGE: $storagePath\n";
 
     $app->useStoragePath($storagePath);
+    echo "USE_STORAGE: OK\n";
 
     // ── 5. Ensure SQLite database exists ──────────────────────────
     $dbDir  = $tmpPath . '/database';
