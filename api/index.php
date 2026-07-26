@@ -8,7 +8,8 @@
  */
 
 // ── 1. Suppress deprecation warnings (PHP 8.5 compat) ─────────
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 
 // ── 2. Load Composer autoloader ───────────────────────────────
 $appPath = dirname(__DIR__);

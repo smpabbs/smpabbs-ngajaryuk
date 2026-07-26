@@ -11,7 +11,3 @@ node_modules
 tests
 *.md
 *.lock
-
-# Exclude Laravel's public entry point — Vercel uses api/index.php
-/public/index.php
-/public/.htaccess
