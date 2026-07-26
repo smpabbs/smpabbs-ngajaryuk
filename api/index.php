@@ -7,10 +7,9 @@
  * It bootstraps Laravel and handles every incoming HTTP request.
  */
 
-// ── 1. Buffer all output so PHP warnings don't break headers ──
+// ── 1. Show all errors for debugging ──────────────────────────
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-ob_start();
 
 // ── 2. Load Composer autoloader ───────────────────────────────
 $appPath = dirname(__DIR__);
@@ -25,7 +24,6 @@ $app = require $appPath . '/bootstrap/app.php';
 if ($isVercel) {
     $tmpPath = sys_get_temp_dir() . '/smpabbs-ngajaryuk';
 
-    // Ensure writable directories exist
     foreach (['storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views', 'storage/logs', 'database'] as $dir) {
         $fullPath = $tmpPath . '/' . $dir;
         if (!is_dir($fullPath)) {
@@ -33,7 +31,6 @@ if ($isVercel) {
         }
     }
 
-    // Point Laravel storage to /tmp
     $storagePath = $tmpPath . '/storage';
     if (!is_dir($storagePath)) {
         mkdir($storagePath, 0775, true);
@@ -84,14 +81,9 @@ if ($isVercel) {
     $_SERVER['APP_ENV'] = 'production';
 }
 
-// ── 6. Discard any stray PHP warnings, then send response ─────
-ob_clean();
-
+// ── 6. Handle request through HTTP Kernel ─────────────────────
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 $request = Illuminate\Http\Request::capture();
 $response = $kernel->handle($request);
 $response->send();
-
-// ── 7. Flush any remaining output ─────────────────────────────
-ob_end_flush();
 $kernel->terminate($request, $response);
