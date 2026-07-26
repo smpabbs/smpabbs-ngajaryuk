@@ -49,6 +49,7 @@ if ($isVercel) {
     echo "USE_STORAGE: OK\n";
 
     // ── 5. Ensure SQLite database exists ──────────────────────────
+    echo "DB_SECTION: START\n";
     $dbDir  = $tmpPath . '/database';
     $dbPath = $dbDir . '/database.sqlite';
 
