@@ -17,7 +17,9 @@ require $appPath . '/vendor/autoload.php';
 // ── 3. Detect Vercel serverless environment ───────────────────
 $isVercel = isset($_SERVER['VERCEL']) || getenv('VERCEL') === '1';
 
-// ── 4. Override writable paths for Vercel (only /tmp is writable) ──
+// ── 4. Bootstrap Laravel ──────────────────────────────────────
+$app = require $appPath . '/bootstrap/app.php';
+
 if ($isVercel) {
     $tmpPath = sys_get_temp_dir() . '/smpabbs-ngajaryuk';
 
@@ -35,7 +37,6 @@ if ($isVercel) {
         mkdir($storagePath, 0775, true);
     }
 
-    $app = require $appPath . '/bootstrap/app.php';
     $app->useStoragePath($storagePath);
 
     // ── 5. Ensure SQLite database exists ──────────────────────────
@@ -84,20 +85,11 @@ if ($isVercel) {
     putenv('APP_ENV=production');
     $_ENV['APP_ENV'] = 'production';
     $_SERVER['APP_ENV'] = 'production';
-} else {
-    $app = require $appPath . '/bootstrap/app.php';
 }
 
-// ── 6. Handle the HTTP request (Laravel 12 style) ────────────
-try {
-    $app->handleRequest(Illuminate\Http\Request::capture());
-} catch (\Throwable $e) {
-    $code = $e->getCode() >= 400 && $e->getCode() < 600 ? (int)$e->getCode() : 500;
-    http_response_code($code);
-    header('Content-Type: text/plain; charset=utf-8');
-    echo "[" . get_class($e) . "] " . $e->getMessage() . "\n";
-    echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
-    if ($e->getPrevious()) {
-        echo "Previous: " . $e->getPrevious()->getMessage() . "\n";
-    }
-}
+// ── 6. Handle the HTTP request via HTTP Kernel ────────────────
+$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+$request = Illuminate\Http\Request::capture();
+$response = $kernel->handle($request);
+$response->send();
+$kernel->terminate($request, $response);
