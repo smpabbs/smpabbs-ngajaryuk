@@ -54,6 +54,8 @@ if ($isVercel) {
     echo "DB_DIR: $dbDir\n";
     $dbPath = $dbDir . '/database.sqlite';
     echo "DB_PATH: $dbPath\n";
+    echo "DB_EXISTS: " . (file_exists($dbPath) ? "YES" : "NO") . "\n";
+    echo "GITHUB_TOKEN: " . (getenv('GITHUB_TOKEN') ? "SET" : "NOT_SET") . "\n";
 
     if (!file_exists($dbPath)) {
         $githubToken = getenv('GITHUB_TOKEN') ?: '';
