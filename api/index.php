@@ -26,6 +26,8 @@ if ($isVercel) {
     echo "VERCEL MODE\n";
     echo "TMP: " . sys_get_temp_dir() . "\n";
     $tmpPath = sys_get_temp_dir() . '/smpabbs-ngajaryuk';
+    echo "TMPPATH: $tmpPath\n";
+    echo "TRY MKDIR...\n";
 
     foreach (['storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views', 'storage/logs', 'database'] as $dir) {
         $fullPath = $tmpPath . '/' . $dir;
