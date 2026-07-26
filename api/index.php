@@ -51,7 +51,9 @@ if ($isVercel) {
     // ── 5. Ensure SQLite database exists ──────────────────────────
     echo "DB_SECTION: START\n";
     $dbDir  = $tmpPath . '/database';
+    echo "DB_DIR: $dbDir\n";
     $dbPath = $dbDir . '/database.sqlite';
+    echo "DB_PATH: $dbPath\n";
 
     if (!file_exists($dbPath)) {
         $githubToken = getenv('GITHUB_TOKEN') ?: '';
