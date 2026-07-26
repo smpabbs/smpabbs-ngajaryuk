@@ -7,14 +7,17 @@
  * It bootstraps Laravel and handles every incoming HTTP request.
  */
 
-// ── 1. Load Composer autoloader (MUST be first!) ───────────────
+// ── 1. Suppress deprecation warnings (PHP 8.5 compat) ─────────
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+
+// ── 2. Load Composer autoloader ───────────────────────────────
 $appPath = dirname(__DIR__);
 require $appPath . '/vendor/autoload.php';
 
-// ── 2. Detect Vercel serverless environment ─────────────────────
+// ── 3. Detect Vercel serverless environment ───────────────────
 $isVercel = isset($_SERVER['VERCEL']) || getenv('VERCEL') === '1';
 
-// ── 3. Override writable paths for Vercel (only /tmp is writable) ──
+// ── 4. Override writable paths for Vercel (only /tmp is writable) ──
 if ($isVercel) {
     $tmpPath = sys_get_temp_dir() . '/smpabbs-ngajaryuk';
 
@@ -35,7 +38,7 @@ if ($isVercel) {
     $app = require $appPath . '/bootstrap/app.php';
     $app->useStoragePath($storagePath);
 
-    // ── 4. Ensure SQLite database exists ────────────────────────────
+    // ── 5. Ensure SQLite database exists ──────────────────────────
     $dbDir  = $tmpPath . '/database';
     $dbPath = $dbDir . '/database.sqlite';
 
@@ -77,7 +80,7 @@ if ($isVercel) {
     $_ENV['DB_DATABASE'] = $dbPath;
     $_SERVER['DB_DATABASE'] = $dbPath;
 
-    // Force HTTPS behind Vercel proxy
+    // Force production environment
     putenv('APP_ENV=production');
     $_ENV['APP_ENV'] = 'production';
     $_SERVER['APP_ENV'] = 'production';
@@ -85,11 +88,7 @@ if ($isVercel) {
     $app = require $appPath . '/bootstrap/app.php';
 }
 
-// ── 5. Handle the HTTP request ──────────────────────────────────
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-
+// ── 6. Handle the HTTP request (Laravel 12 style) ────────────
 $request = Illuminate\Http\Request::capture();
-$response = $kernel->handle($request);
+$response = $app->handleRequest($request);
 $response->send();
-
-$kernel->terminate($request, $response);
