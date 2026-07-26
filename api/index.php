@@ -8,8 +8,8 @@
  */
 
 // ── 1. Buffer all output so PHP warnings don't break headers ──
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
-ini_set('display_errors', '0');
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 ob_start();
 
 // ── 2. Load Composer autoloader ───────────────────────────────
