@@ -32,7 +32,10 @@ if ($isVercel) {
     foreach (['storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views', 'storage/logs', 'database'] as $dir) {
         $fullPath = $tmpPath . '/' . $dir;
         if (!is_dir($fullPath)) {
-            mkdir($fullPath, 0775, true);
+            $result = mkdir($fullPath, 0775, true);
+            echo "MKDIR $fullPath: " . ($result ? "OK" : "FAIL") . "\n";
+        } else {
+            echo "MKDIR $fullPath: EXISTS\n";
         }
     }
 
