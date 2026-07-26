@@ -7,9 +7,9 @@
  * It bootstraps Laravel and handles every incoming HTTP request.
  */
 
-// ── 1. Suppress deprecation warnings (PHP 8.5 compat) ─────────
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+// ── 1. Suppress errors that would break header output ─────────
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+ini_set('display_errors', '0');
 
 // ── 2. Load Composer autoloader ───────────────────────────────
 $appPath = dirname(__DIR__);
