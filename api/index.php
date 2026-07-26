@@ -20,6 +20,7 @@ $isVercel = isset($_SERVER['VERCEL']) || getenv('VERCEL') === '1';
 
 // ── 4. Bootstrap Laravel ──────────────────────────────────────
 $app = require $appPath . '/bootstrap/app.php';
+echo "APP LOADED\n";
 
 if ($isVercel) {
     $tmpPath = sys_get_temp_dir() . '/smpabbs-ngajaryuk';
