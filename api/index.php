@@ -7,11 +7,12 @@
  * It bootstraps Laravel and handles every incoming HTTP request.
  */
 
-// ── 1. Detect Vercel serverless environment ─────────────────────
-$isVercel = isset($_SERVER['VERCEL']) || getenv('VERCEL') === '1';
-
-// ── 2. Resolve paths ────────────────────────────────────────────
+// ── 1. Load Composer autoloader (MUST be first!) ───────────────
 $appPath = dirname(__DIR__);
+require $appPath . '/vendor/autoload.php';
+
+// ── 2. Detect Vercel serverless environment ─────────────────────
+$isVercel = isset($_SERVER['VERCEL']) || getenv('VERCEL') === '1';
 
 // ── 3. Override writable paths for Vercel (only /tmp is writable) ──
 if ($isVercel) {
