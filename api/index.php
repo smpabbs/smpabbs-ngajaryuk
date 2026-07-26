@@ -89,4 +89,15 @@ if ($isVercel) {
 }
 
 // ── 6. Handle the HTTP request (Laravel 12 style) ────────────
-$app->handleRequest(Illuminate\Http\Request::capture());
+try {
+    $app->handleRequest(Illuminate\Http\Request::capture());
+} catch (\Throwable $e) {
+    $code = $e->getCode() >= 400 && $e->getCode() < 600 ? (int)$e->getCode() : 500;
+    http_response_code($code);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "[" . get_class($e) . "] " . $e->getMessage() . "\n";
+    echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
+    if ($e->getPrevious()) {
+        echo "Previous: " . $e->getPrevious()->getMessage() . "\n";
+    }
+}
