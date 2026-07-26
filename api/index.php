@@ -89,6 +89,4 @@ if ($isVercel) {
 }
 
 // ── 6. Handle the HTTP request (Laravel 12 style) ────────────
-$request = Illuminate\Http\Request::capture();
-$response = $app->handleRequest($request);
-$response->send();
+$app->handleRequest(Illuminate\Http\Request::capture());
