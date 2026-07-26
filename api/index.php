@@ -7,10 +7,10 @@
  * It bootstraps Laravel and handles every incoming HTTP request.
  */
 
-// ── 1. Suppress errors that would break header output ─────────
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-ini_set('log_errors', '0');
+// ── 1. Buffer all output so PHP warnings don't break headers ──
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+ini_set('display_errors', '0');
+ob_start();
 
 // ── 2. Load Composer autoloader ───────────────────────────────
 $appPath = dirname(__DIR__);
@@ -46,7 +46,6 @@ if ($isVercel) {
     $dbPath = $dbDir . '/database.sqlite';
 
     if (!file_exists($dbPath)) {
-        // Try to pull from GitHub first
         $githubToken = getenv('GITHUB_TOKEN') ?: '';
         $repoOwner   = getenv('GITHUB_REPO_OWNER') ?: 'smpabbs';
         $repoName    = getenv('GITHUB_REPO_NAME') ?: 'smpabbs-ngajaryuk';
@@ -54,7 +53,7 @@ if ($isVercel) {
 
         if ($githubToken) {
             $url = "https://api.github.com/repos/{$repoOwner}/{$repoName}/contents/database/database.sqlite?ref={$repoBranch}";
-            $context = stream_context_create([
+            $ctx = stream_context_create([
                 'http' => [
                     'method' => 'GET',
                     'header' => [
@@ -65,33 +64,34 @@ if ($isVercel) {
                     'timeout' => 10,
                 ],
             ]);
-
-            $dbContent = @file_get_contents($url, false, $context);
+            $dbContent = @file_get_contents($url, false, $ctx);
             if ($dbContent !== false) {
                 file_put_contents($dbPath, $dbContent);
             }
         }
 
-        // If still doesn't exist, create empty database
         if (!file_exists($dbPath)) {
             touch($dbPath);
         }
     }
 
-    // Override DB_DATABASE env so Laravel uses our path
     putenv("DB_DATABASE={$dbPath}");
     $_ENV['DB_DATABASE'] = $dbPath;
     $_SERVER['DB_DATABASE'] = $dbPath;
 
-    // Force production environment
     putenv('APP_ENV=production');
     $_ENV['APP_ENV'] = 'production';
     $_SERVER['APP_ENV'] = 'production';
 }
 
-// ── 6. Handle the HTTP request via HTTP Kernel ────────────────
+// ── 6. Discard any stray PHP warnings, then send response ─────
+ob_clean();
+
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 $request = Illuminate\Http\Request::capture();
 $response = $kernel->handle($request);
 $response->send();
+
+// ── 7. Flush any remaining output ─────────────────────────────
+ob_end_flush();
 $kernel->terminate($request, $response);
