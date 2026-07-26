@@ -56,6 +56,7 @@ if ($isVercel) {
     echo "DB_PATH: $dbPath\n";
     echo "DB_EXISTS: " . (file_exists($dbPath) ? "YES" : "NO") . "\n";
     echo "GITHUB_TOKEN: " . (getenv('GITHUB_TOKEN') ? "SET" : "NOT_SET") . "\n";
+    echo "BEFORE_PUTENV\n";
 
     if (!file_exists($dbPath)) {
         $githubToken = getenv('GITHUB_TOKEN') ?: '';
